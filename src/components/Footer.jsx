@@ -93,7 +93,7 @@ export default function Footer() {
                         {/* Social Links */}
                         <div className="flex space-x-4">
                             {socialLinks.map((social) => (
-                                <a
+                                <Link
                                     key={social.name}
                                     href={social.href}
                                     className={`p-2 rounded-full ${isHovering === social.name ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'} transition-colors`}
@@ -102,7 +102,7 @@ export default function Footer() {
                                     aria-label={social.name}
                                 >
                                     {social.icon}
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -169,7 +169,7 @@ export default function Footer() {
                                 Access your courses anytime, anywhere with our mobile application.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
-                                <a
+                                <Link
                                     href="#"
                                     className="bg-black/90 hover:bg-black text-white px-4 py-3 rounded-lg flex items-center justify-center transition-all hover:scale-[1.02]"
                                 >
@@ -182,8 +182,8 @@ export default function Footer() {
                                             <div className="font-bold text-sm">Google Play</div>
                                         </div>
                                     </div>
-                                </a>
-                                <a
+                                </Link>
+                                <Link
                                     href="#"
                                     className="bg-black/90 hover:bg-black text-white px-4 py-3 rounded-lg flex items-center justify-center transition-all hover:scale-[1.02]"
                                 >
@@ -196,7 +196,7 @@ export default function Footer() {
                                             <div className="font-bold text-sm">App Store</div>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>

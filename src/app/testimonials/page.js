@@ -1,5 +1,6 @@
 'use client';
 import { StarIcon, AcademicCapIcon, BriefcaseIcon, ChartBarIcon, ArrowRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 const testimonials = [
@@ -103,18 +104,18 @@ export default function Testimonials() {
                         Join <span className="font-bold">10,000+ professionals</span> who aced their certifications with our platform
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <a
+                        <Link
                             href="/register"
                             className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-2"
                         >
                             Start Free Trial <ArrowRightIcon className="h-5 w-5" />
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="#testimonials"
                             className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all flex items-center justify-center gap-2"
                         >
                             See Success Stories
-                        </a>
+                        </Link>
                     </div>
                 </div>
 
@@ -232,13 +233,13 @@ export default function Testimonials() {
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-200">
-                                    <a
+                                    <Link
                                         href="/alex-story"
                                         className="text-blue-600 font-semibold flex items-center hover:text-blue-800"
                                     >
                                         Read Alex's full success story
                                         <ArrowRightIcon className="h-4 w-4 ml-2" />
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -251,11 +252,11 @@ export default function Testimonials() {
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-bold text-gray-900 mb-4">Trusted by Professionals at</h2>
                     <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-8">
-                        <img src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Google" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Amazon" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <img src="https://images.unsplash.com/photo-1592609931095-54a2168ae893?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Microsoft" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="IBM" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Oracle" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Google" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Amazon" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1592609931095-54a2168ae893?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Microsoft" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="IBM" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Oracle" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
 
@@ -348,7 +349,7 @@ export default function Testimonials() {
                         ].map((cert, index) => (
                             <div key={index} className="bg-gray-800 rounded-lg p-6 flex flex-col items-center hover:bg-gray-700 transition-colors">
                                 <div className="w-20 h-20 mb-4 bg-white rounded-lg p-2 flex items-center justify-center">
-                                    <img src={cert.logo} alt={cert.name} className="max-h-full max-w-full" />
+                                    <Image src={cert.logo} alt={cert.name} className="max-h-full max-w-full" />
                                 </div>
                                 <h3 className="text-lg font-medium text-center">{cert.name}</h3>
                             </div>
@@ -356,13 +357,13 @@ export default function Testimonials() {
                     </div>
 
                     <div className="text-center mt-12">
-                        <a
+                        <Link
                             href="/certifications"
                             className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-lg"
                         >
                             Explore All Certifications
                             <ArrowRightIcon className="h-5 w-5 ml-2" />
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -400,18 +401,18 @@ export default function Testimonials() {
                         Join thousands of students who have transformed their careers with our certification preparation platform
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <a
+                        <Link
                             href="/register"
                             className="px-8 py-4 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                         >
                             Get Started for Free
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/pricing"
                             className="px-8 py-4 border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-blue-600 transition-all"
                         >
                             View Pricing Plans
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
