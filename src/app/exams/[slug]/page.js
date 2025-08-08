@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { allExams } from '@/data/exams';
 import { CheckCircle, Star, Clock, BookOpen, Download, MessageSquare, Award, ChevronRight, Users, Shield, Trophy, Zap, BarChart2, BadgeCheck, Video, FileText, HelpCircle, ArrowRight, Percent, Calendar, Globe, Briefcase, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
-
+import Link from 'next/link';
 const ExamPage = () => {
     const { slug } = useParams();
     const [exam, setExam] = useState(null);

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { allBlogPosts } from '@/data/blogPosts';
 import { CalendarIcon, ClockIcon, ChatBubbleBottomCenterTextIcon, ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 export const metadata = {
     title: 'ExamQuestions Blog - Learn Tips & Strategies',
@@ -74,10 +75,13 @@ export default function BlogPage() {
                     <div className="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.01] transition-transform duration-300">
                         <div className="md:flex">
                             <div className="md:flex-shrink-0 md:w-1/2 relative">
-                                <img
+                                <Image
                                     className="h-full w-full object-cover"
                                     src={featuredPost.image}
                                     alt={featuredPost.title}
+                                    width={800}
+                                    height={500}
+
                                 />
                                 <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                                     Featured
@@ -100,10 +104,12 @@ export default function BlogPage() {
                                 </p>
                                 <div className="mt-6 flex items-center">
                                     <div className="flex-shrink-0">
-                                        <img
+                                        <Image
                                             className="h-12 w-12 rounded-full border-2 border-blue-200"
                                             src={featuredPost.author.avatar}
                                             alt={featuredPost.author.name}
+                                            width={800}
+                                            height={500}
                                         />
                                     </div>
                                     <div className="ml-4">
@@ -174,10 +180,12 @@ export default function BlogPage() {
                         {regularPosts.map((post) => (
                             <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group">
                                 <Link href={`/Blog/${post.slug}`} className="relative block">
-                                    <img
+                                    <Image
                                         className="h-56 w-full object-cover group-hover:opacity-90 transition-opacity"
                                         src={post.image}
                                         alt={post.title}
+                                        width={800}
+                                        height={500}
                                     />
                                     <div className="absolute top-4 right-4 bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                                         {post.category}
@@ -211,10 +219,12 @@ export default function BlogPage() {
                                             <ArrowRightIcon className="h-4 w-4 ml-1" />
                                         </Link>
                                         <div className="flex items-center">
-                                            <img
+                                            <Image
                                                 className="h-8 w-8 rounded-full border border-gray-200"
                                                 src={post.author.avatar}
                                                 alt={post.author.name}
+                                                width={800}
+                                                height={500}
                                             />
                                             <span className="ml-2 text-sm font-medium text-gray-700">{post.author.name}</span>
                                         </div>
@@ -233,10 +243,12 @@ export default function BlogPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <div className="flex items-center mb-4">
-                                <img
+                                <Image
                                     src="https://randomuser.me/api/portraits/women/32.jpg"
                                     alt="Sarah Johnson"
                                     className="h-12 w-12 rounded-full mr-4"
+                                    width={800}
+                                    height={500}
                                 />
                                 <div>
                                     <h4 className="font-bold">Sarah Johnson</h4>
@@ -254,10 +266,12 @@ export default function BlogPage() {
                         </div>
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <div className="flex items-center mb-4">
-                                <img
+                                <Image
                                     src="https://randomuser.me/api/portraits/men/45.jpg"
                                     alt="Michael Tan"
                                     className="h-12 w-12 rounded-full mr-4"
+                                    width={800}
+                                    height={500}
                                 />
                                 <div>
                                     <h4 className="font-bold">Michael Tan</h4>
@@ -275,11 +289,13 @@ export default function BlogPage() {
                         </div>
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <div className="flex items-center mb-4">
-                                <img
+                                <Image
                                     src="https://randomuser.me/api/portraits/women/68.jpg"
                                     alt="Priya Patel"
                                     className="h-12 w-12 rounded-full mr-4"
-                                />
+                                    width={800}
+                                    height={500}
+                                        />
                                 <div>
                                     <h4 className="font-bold">Priya Patel</h4>
                                     <p className="text-blue-600 text-sm">Google Cloud Certified</p>

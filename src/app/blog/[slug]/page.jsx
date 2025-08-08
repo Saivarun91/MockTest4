@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { allBlogPosts } from '@/data/blogPosts';
 import { CalendarIcon, ClockIcon, ShareIcon, BookmarkIcon, ArrowRightIcon, AcademicCapIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export async function generateMetadata({ params }) {
     const post = allBlogPosts.find(post => post.slug === params.slug);
@@ -61,10 +62,12 @@ export default function BlogPostPage({ params }) {
 
                     <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
                         <div className="flex items-center">
-                            <img
+                            <Image
                                 className="h-12 w-12 rounded-full mr-4 border-2 border-blue-300 shadow-sm"
                                 src={post.author.avatar}
                                 alt={post.author.name}
+                                width={800}
+                                height={500}
                             />
                             <div>
                                 <p className="font-medium text-white">{post.author.name}</p>
@@ -186,10 +189,12 @@ export default function BlogPostPage({ params }) {
                 {/* Author Bio */}
                 <div className="mt-16 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
                     <div className="flex items-start">
-                        <img
+                        <Image
                             className="h-16 w-16 rounded-full mr-4 border-2 border-white shadow-sm"
                             src={post.author.avatar}
                             alt={post.author.name}
+                            width={800}
+                            height={500}
                         />
                         <div>
                             <h3 className="text-lg font-bold text-gray-900">About {post.author.name}</h3>

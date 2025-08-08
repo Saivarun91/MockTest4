@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, Star, Clock, ChevronDown, ChevronUp, Award } from 'lucide-react';
 import { allExams } from '@/data/exams';
+import Image from 'next/image';
 
 const ExamsPage = () => {
     // All exam data

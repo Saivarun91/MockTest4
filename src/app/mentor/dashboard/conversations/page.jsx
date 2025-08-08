@@ -1,5 +1,7 @@
 // app/mentor/dashboard/conversations/page.jsx
 'use client'
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { FiMessageSquare, FiUser, FiBook, FiPaperclip, FiSend, FiSearch, FiChevronDown } from 'react-icons/fi';
 
@@ -110,7 +112,7 @@ export default function ConversationsPage() {
                                     <div className="flex-shrink-0">
                                         <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
                                             {conv.avatar ? (
-                                                <img src={conv.avatar} alt={conv.student} className="h-full w-full object-cover" />
+                                                <Image src={conv.avatar} alt={conv.student} className="h-full w-full object-cover" width={40} height={40} />
                                             ) : (
                                                 <div className="h-full w-full flex items-center justify-center text-gray-500">
                                                     <FiUser size={18} />
@@ -154,7 +156,7 @@ export default function ConversationsPage() {
                             <div className="flex items-center space-x-3">
                                 <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
                                     {activeConvData.avatar ? (
-                                        <img src={activeConvData.avatar} alt={activeConvData.student} className="h-full w-full object-cover" />
+                                        <Image src={activeConvData.avatar} alt={activeConvData.student} className="h-full w-full object-cover" width={40} height={40} />
                                     ) : (
                                         <div className="h-full w-full flex items-center justify-center text-gray-500">
                                             <FiUser size={18} />
@@ -167,14 +169,14 @@ export default function ConversationsPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <a
+                                <Link
                                     href={activeConvData.pdfUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition"
                                 >
                                     <FiBook className="mr-2" /> Syllabus
-                                </a>
+                                </Link>
                                 <button className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition">
                                     <FiChevronDown />
                                 </button>

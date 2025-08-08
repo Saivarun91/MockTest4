@@ -2,6 +2,7 @@
 import { StarIcon, AcademicCapIcon, BriefcaseIcon, ChartBarIcon, ArrowRightIcon, PlayIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const testimonials = [
     {
@@ -119,16 +120,7 @@ export default function Testimonials() {
                     </div>
                 </div>
 
-                {/* Animated floating certifications */}
-                {/* <div className="absolute top-1/4 left-10 w-16 h-16 bg-white rounded-lg shadow-md opacity-80 animate-float-1">
-                    <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="AWS Certification" className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute top-1/3 right-20 w-16 h-16 bg-white rounded-lg shadow-md opacity-80 animate-float-2">
-                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Azure Certification" className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute bottom-1/4 left-1/4 w-16 h-16 bg-white rounded-lg shadow-md opacity-80 animate-float-3">
-                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="CompTIA Certification" className="w-full h-full object-cover" />
-                </div> */}
+             
             </div>
 
             {/* Stats Section with Animation */}
@@ -190,9 +182,11 @@ export default function Testimonials() {
                         <div className="md:flex">
                             <div className="md:w-1/2 relative">
                                 <div className="h-full bg-gray-200">
-                                    <img
+                                    <Image
                                         src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
                                         alt="Featured Student"
+                                        width={800}
+  height={500}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
@@ -217,10 +211,12 @@ export default function Testimonials() {
                                 </blockquote>
                                 <div className="flex items-center">
                                     <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden mr-6">
-                                        <img
+                                        <Image
                                             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80"
                                             alt="Featured Student"
                                             className="w-full h-full object-cover"
+                                            width={800}
+  height={500}
                                         />
                                     </div>
                                     <div>
@@ -248,15 +244,15 @@ export default function Testimonials() {
             </div>
 
             {/* Testimonials Grid */}
-            <div id="testimonials" className="container mx-auto px-4 py-20">
+            {/* <div id="testimonials" className="container mx-auto px-4 py-20">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-bold text-gray-900 mb-4">Trusted by Professionals at</h2>
                     <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-8">
-                        <Image src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Google" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <Image src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Amazon" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <Image src="https://images.unsplash.com/photo-1592609931095-54a2168ae893?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Microsoft" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <Image src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="IBM" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
-                        <Image src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Oracle" className="h-10 opacity-70 hover:opacity-100 transition-opacity" />
+                        <Image src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Google" className="h-10 opacity-70 hover:opacity-100 transition-opacity" width={800} height={500} />
+                        <Image src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Amazon" className="h-10 opacity-70 hover:opacity-100 transition-opacity" width={800} height={500} />
+                        <Image src="https://images.unsplash.com/photo-1592609931095-54a2168ae893?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Microsoft" className="h-10 opacity-70 hover:opacity-100 transition-opacity" width={800} height={500} />
+                        <Image src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="IBM" className="h-10 opacity-70 hover:opacity-100 transition-opacity" width={800} height={500} />
+                        <Image src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Oracle" className="h-10 opacity-70 hover:opacity-100 transition-opacity" width={800} height={500} />
                     </div>
                 </div>
 
@@ -270,10 +266,12 @@ export default function Testimonials() {
                             <div className="relative h-48 bg-gray-200 overflow-hidden">
                                 {testimonial.video ? (
                                     <>
-                                        <img
+                                        <Image
                                             src={`https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80&${testimonial.id}`}
                                             alt={testimonial.name}
                                             className="w-full h-full object-cover"
+                                            width={800}
+  height={500}
                                         />
                                         <button
                                             onClick={() => openVideo(testimonial.video)}
@@ -283,17 +281,19 @@ export default function Testimonials() {
                                         </button>
                                     </>
                                 ) : (
-                                    <img
+                                    <Image
                                         src={`https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80&${testimonial.id}`}
                                         alt={testimonial.name}
                                         className="w-full h-full object-cover"
+                                        width={800}
+  height={500}
                                     />
                                 )}
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center mb-4">
                                     <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden mr-4">
-                                        <img
+                                        <Image
                                             src={testimonial.avatar}
                                             alt={testimonial.name}
                                             className="w-full h-full object-cover"
@@ -301,6 +301,8 @@ export default function Testimonials() {
                                                 e.target.onerror = null;
                                                 e.target.src = 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80';
                                             }}
+                                            width={800}
+  height={500}
                                         />
                                     </div>
                                     <div>
@@ -328,7 +330,7 @@ export default function Testimonials() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div> */}
 
             {/* Certification Showcase */}
             <div className="bg-gray-900 text-white py-20">
@@ -349,7 +351,7 @@ export default function Testimonials() {
                         ].map((cert, index) => (
                             <div key={index} className="bg-gray-800 rounded-lg p-6 flex flex-col items-center hover:bg-gray-700 transition-colors">
                                 <div className="w-20 h-20 mb-4 bg-white rounded-lg p-2 flex items-center justify-center">
-                                    <Image src={cert.logo} alt={cert.name} className="max-h-full max-w-full" />
+                                    <Image src={cert.logo} alt={cert.name} className="max-h-full max-w-full" width={800} height={500} />
                                 </div>
                                 <h3 className="text-lg font-medium text-center">{cert.name}</h3>
                             </div>
