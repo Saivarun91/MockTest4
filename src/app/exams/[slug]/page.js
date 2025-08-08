@@ -470,7 +470,7 @@ const ExamPage = () => {
                                             <div>
                                                 <h3 className="text-2xl font-bold text-gray-900">{exam.instructor.name}</h3>
                                                 <p className="text-gray-600 mb-3">{exam.instructor.role} • {exam.instructor.experience} experience</p>
-                                                <p className="text-gray-600 mb-4">With over {exam.instructor.students.toLocaleString()} students taught, {exam.instructor.name.split(' ')[0]} brings real-world expertise to help you master the {exam.title} exam.</p>
+                                                <p className="text-gray-600 mb-4">With over {exam.instructor.students.toLocaleString()} students taught, {exam.instructor.name.split(" ")[0]} brings real-world expertise to help you master the {exam.title} exam.</p>
                                                 <div className="flex items-center text-gray-600">
                                                     <Star className="w-5 h-5 text-yellow-400 fill-current mr-1" />
                                                     <span className="font-medium">4.9</span>
@@ -741,7 +741,7 @@ const ExamPage = () => {
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
                     <div className="container mx-auto px-4 text-center">
                         <h2 className="text-3xl font-bold mb-4">Ready to advance your career?</h2>
-                        <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join {exam.students.toLocaleString()}+ professionals who&apos;ve boosted their careers with this certification.</p>
+                        <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join {exam.students.toLocaleString()}+ professionals who have boosted their careers with this certification.</p>
                         <button
                             onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
                             className="bg-white hover:bg-gray-100 text-blue-600 py-4 px-8 rounded-lg font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg"
