@@ -32,7 +32,6 @@ const ExamPage = () => {
             setIsLoading(false);
         }
 
-        // Countdown timer
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev.seconds > 0) {
@@ -57,7 +56,6 @@ const ExamPage = () => {
         localStorage.setItem('purchasedCourses', JSON.stringify(purchasedCourses));
         setIsPurchased(true);
 
-        // Show success notification
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
     };
@@ -91,7 +89,6 @@ const ExamPage = () => {
         );
     }
 
-    // Dynamic background based on category
     const getCategoryBackground = () => {
         switch (exam.category) {
             case "Cloud Computing":
@@ -107,7 +104,7 @@ const ExamPage = () => {
 
     return (
         <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen">
-            {/* Hero Section with Background Image */}
+
             <div className={`relative text-white py-24 md:py-32 bg-cover bg-center ${getCategoryBackground()}`}>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-indigo-900/90"></div>
                 <div className="container mx-auto px-4 relative z-10">
@@ -128,7 +125,7 @@ const ExamPage = () => {
                             )}
                             {exam.new && (
                                 <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                                    New & Updated
+                                    New &amp; Updated
                                 </span>
                             )}
                             {exam.premium && (
@@ -185,7 +182,6 @@ const ExamPage = () => {
                 </div>
             </div>
 
-            {/* Success Notification */}
             {showNotification && (
                 <div className="fixed top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center animate-fade-in">
                     <CheckCircle className="w-5 h-5 mr-2" />
@@ -193,7 +189,6 @@ const ExamPage = () => {
                 </div>
             )}
 
-            {/* Video Modal */}
             {videoModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full relative">
@@ -222,7 +217,6 @@ const ExamPage = () => {
                 </div>
             )}
 
-            {/* Certification Benefits Ribbon */}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-wrap items-center justify-center gap-6 text-center">
@@ -246,7 +240,6 @@ const ExamPage = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="container mx-auto px-4 py-8 -mt-6 relative z-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Left Content */}
@@ -333,7 +326,8 @@ const ExamPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-blue-100">"Passed the exam on first try thanks to this course. Landed a promotion within 3 months!"</p>
+<p className="text-sm text-blue-100">&quot;Passed the exam on first try thanks to this course. Landed a promotion within 3 months!&quot;</p>
+
                                         <div className="mt-3 pt-3 border-t border-white/20">
                                             <div className="text-xs text-white/80">Certified on {new Date().toLocaleDateString()}</div>
                                         </div>
@@ -509,7 +503,7 @@ const ExamPage = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <p className="text-gray-600 mb-2">"This course prepared me perfectly for the exam. The practice questions were very similar to the real thing."</p>
+                                                    <p className="text-gray-600 mb-2">&quot;This course prepared me perfectly for the exam. The practice questions were very similar to the real thing.&quot;</p>
                                                     <div className="text-sm text-gray-500">Completed on {new Date().toLocaleDateString()}</div>
                                                 </div>
                                             ))}
@@ -537,7 +531,7 @@ const ExamPage = () => {
                         </div>
                     </div>
 
-                    {/* Right Sidebar */}
+
                     <div className="lg:w-1/3" id="pricing">
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sticky top-6">
                             {isPurchased ? (
@@ -591,7 +585,7 @@ const ExamPage = () => {
                                         ))}
                                     </div>
                                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                                        <h4 className="font-bold text-blue-800 mb-2">What's included:</h4>
+                                        <h4 className="font-bold text-blue-800 mb-2">What&apos;s included:</h4>
                                         <ul className="space-y-2 text-sm">
                                             <li className="flex items-start">
                                                 <CheckCircle className="w-4 h-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -615,7 +609,7 @@ const ExamPage = () => {
                             )}
                         </div>
 
-                        {/* Exam Details Card */}
+
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mt-6">
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Exam Details</h3>
                             <div className="space-y-4">
@@ -658,7 +652,7 @@ const ExamPage = () => {
                             </div>
                         </div>
 
-                        {/* Limited Time Offer */}
+ 
                         {!isPurchased && (
                             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mt-6">
                                 <h3 className="text-xl font-bold mb-2">Limited Time Offer!</h3>
@@ -682,7 +676,7 @@ const ExamPage = () => {
                             </div>
                         )}
 
-                        {/* Mentor Support Card */}
+
                         {isPurchased && (
                             <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg border border-blue-100 p-6 mt-6">
                                 <h3 className="text-xl font-bold text-gray-900 mb-4">Need help?</h3>
@@ -697,7 +691,7 @@ const ExamPage = () => {
                 </div>
             </div>
 
-            {/* Certification Value Section */}
+   
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 py-16 border-t border-gray-200">
                 <div className="container mx-auto px-4">
                     <div className="text-center max-w-3xl mx-auto mb-12">
@@ -730,7 +724,7 @@ const ExamPage = () => {
                 </div>
             </div>
 
-            {/* Trust Badges Section */}
+
             <div className="bg-gray-50 border-t border-gray-200 py-12">
                 <div className="container mx-auto px-4">
                     <h3 className="text-center text-gray-500 text-sm font-medium mb-6">TRUSTED BY PROFESSIONALS AT</h3>
@@ -743,12 +737,11 @@ const ExamPage = () => {
                 </div>
             </div>
 
-            {/* Final CTA */}
             {!isPurchased && (
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
                     <div className="container mx-auto px-4 text-center">
                         <h2 className="text-3xl font-bold mb-4">Ready to advance your career?</h2>
-                        <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join {exam.students.toLocaleString()}+ professionals who've boosted their careers with this certification.</p>
+                        <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join {exam.students.toLocaleString()}+ professionals who&apos;ve boosted their careers with this certification.</p>
                         <button
                             onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
                             className="bg-white hover:bg-gray-100 text-blue-600 py-4 px-8 rounded-lg font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg"
