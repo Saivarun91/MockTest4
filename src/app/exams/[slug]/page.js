@@ -210,7 +210,7 @@ const ExamPage = () => {
                             </div>
                         </div>
                         <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2">What you will learn in this course</h3>
+                            
                             <p className="text-gray-600">Get a sneak peek at the course content and teaching style before you enroll.</p>
                         </div>
                     </div>
@@ -385,7 +385,7 @@ const ExamPage = () => {
                                                 </ul>
                                             </div>
 
-                                            <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">What You will Learn</h3>
+                                            
                                             <ul className="space-y-3">
                                                 {exam.features.map((feature, index) => (
                                                     <li key={index} className="flex items-start">
