@@ -1,4 +1,4 @@
-// src/app/page.js
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Star, Clock, Zap, Award, CheckCircle, BarCha
 import { allExams } from '@/data/exams';
 
 export default function Home() {
-  // State for animated counter
+
   const [counters, setCounters] = useState({
     students: 0,
     questions: 0,
@@ -16,14 +16,13 @@ export default function Home() {
     activeUsers: 0
   });
 
-  // State for popularity metrics
   const [popularityMetrics, setPopularityMetrics] = useState({
     viewsToday: 0,
     examsStarted: 0,
     questionsAnswered: 0
   });
 
-  // Animate counters on load
+
   useEffect(() => {
     const targetValues = {
       students: 12543,
@@ -81,7 +80,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Group exams by category
+
   const examsByCategory = allExams.reduce((acc, exam) => {
     if (!acc[exam.category]) {
       acc[exam.category] = [];
@@ -91,12 +90,12 @@ export default function Home() {
   }, {});
 
   const featuredExams = [
-    allExams.find(exam => exam.id === 1), // AWS Certified Solutions Architect
-    allExams.find(exam => exam.id === 5), // Full Stack Developer Certification
-    allExams.find(exam => exam.id === 9)  // Certified Ethical Hacking
+    allExams.find(exam => exam.id === 1), 
+    allExams.find(exam => exam.id === 5), 
+    allExams.find(exam => exam.id === 9)  
   ].filter(Boolean);
 
-  // Features with icons
+
   const features = [
     {
       title: "AI-Powered Practice",
@@ -128,7 +127,7 @@ export default function Home() {
     }
   ];
 
-  // Testimonials with enhanced data
+
   const testimonials = [
     {
       id: 1,
@@ -478,9 +477,10 @@ export default function Home() {
                     </div>
 
                     <div className="md:w-2/3">
-                      <blockquote className="text-lg italic text-white mb-6">
-                        "I went from scoring {testimonial.before} on practice tests to {testimonial.after} on the actual exam after using this platform for just {testimonial.studyTime}."
-                      </blockquote>
+<blockquote className="text-lg italic text-white mb-6">
+  &quot;I went from scoring {testimonial.before} on practice tests to {testimonial.after} on the actual exam after using this platform for just {testimonial.studyTime}.&quot;
+</blockquote>
+
                       <p className="text-blue-100">{testimonial.comment}</p>
 
                       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
