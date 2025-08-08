@@ -1,4 +1,4 @@
-// src/app/exams/page.js
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,17 +8,13 @@ import { allExams } from '@/data/exams';
 import Image from 'next/image';
 
 const ExamsPage = () => {
-    // All exam data
 
-
-    // State for filters
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedDifficulties, setSelectedDifficulties] = useState([]);
     const [showPremium, setShowPremium] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
 
-    // Get unique categories and difficulties
     const categories = [...new Set(allExams.map(exam => exam.category))];
     const difficulties = ["Beginner", "Intermediate", "Advanced"];
     function slugify(text) {
@@ -26,28 +22,22 @@ const ExamsPage = () => {
     }
 
 
-
-    // Filter exams based on selections
     const filteredExams = allExams.filter(exam => {
-        // Search term filter
+
         const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             exam.category.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Category filter
         const matchesCategory = selectedCategories.length === 0 ||
             selectedCategories.includes(exam.category);
 
-        // Difficulty filter
         const matchesDifficulty = selectedDifficulties.length === 0 ||
             selectedDifficulties.includes(exam.difficulty);
 
-        // Premium filter
         const matchesPremium = !showPremium || exam.premium;
 
         return matchesSearch && matchesCategory && matchesDifficulty && matchesPremium;
     });
 
-    // Toggle category selection
     const toggleCategory = (category) => {
         setSelectedCategories(prev =>
             prev.includes(category)
@@ -56,7 +46,6 @@ const ExamsPage = () => {
         );
     };
 
-    // Toggle difficulty selection
     const toggleDifficulty = (difficulty) => {
         setSelectedDifficulties(prev =>
             prev.includes(difficulty)
@@ -67,7 +56,6 @@ const ExamsPage = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            {/* Hero Section */}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
                 <div className="container mx-auto px-4 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-6">Find Your Certification</h1>
@@ -77,12 +65,11 @@ const ExamsPage = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="container mx-auto px-4 py-12">
-                {/* Search and Filter Bar */}
+
                 <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                     <div className="flex flex-col md:flex-row gap-4">
-                        {/* Search Input */}
+  
                         <div className="relative flex-grow">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <Search className="h-5 w-5 text-gray-400" />
@@ -96,7 +83,6 @@ const ExamsPage = () => {
                             />
                         </div>
 
-                        {/* Filter Toggle Button */}
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
@@ -111,11 +97,10 @@ const ExamsPage = () => {
                         </button>
                     </div>
 
-                    {/* Expanded Filters */}
                     {showFilters && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {/* Category Filter */}
+
                                 <div>
                                     <h3 className="font-medium text-gray-700 mb-3">Categories</h3>
                                     <div className="space-y-2">
@@ -132,8 +117,6 @@ const ExamsPage = () => {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Difficulty Filter */}
                                 <div>
                                     <h3 className="font-medium text-gray-700 mb-3">Difficulty</h3>
                                     <div className="space-y-2">
@@ -151,7 +134,6 @@ const ExamsPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Premium Filter */}
                                 <div>
                                     <h3 className="font-medium text-gray-700 mb-3">Content Type</h3>
                                     <label className="flex items-center">
@@ -166,7 +148,6 @@ const ExamsPage = () => {
                                 </div>
                             </div>
 
-                            {/* Reset Filters */}
                             {(selectedCategories.length > 0 || selectedDifficulties.length > 0 || showPremium) && (
                                 <div className="mt-4">
                                     <button
@@ -185,14 +166,14 @@ const ExamsPage = () => {
                     )}
                 </div>
 
-                {/* Results Count */}
+
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">
                         {filteredExams.length} {filteredExams.length === 1 ? 'Exam' : 'Exams'} Found
                     </h2>
                 </div>
 
-                {/* Exams Grid */}
+
                 {filteredExams.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredExams.map((exam) => (
@@ -221,16 +202,13 @@ const ExamsPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Exam Title */}
                                     <h3 className="text-xl font-bold text-gray-900 mb-3">{exam.title}</h3>
 
-                                    {/* Exam Meta */}
                                     <div className="flex items-center text-gray-600 mb-4">
                                         <Clock className="w-4 h-4 mr-2" />
                                         <span>{exam.duration} • {exam.questions} Questions</span>
                                     </div>
 
-                                    {/* Difficulty */}
                                     <div className="mb-4">
                                         <div className="flex justify-between text-sm text-gray-600 mb-1">
                                             <span>Difficulty:</span>
@@ -260,7 +238,6 @@ const ExamsPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* CTA Button */}
                                     <Link
                                         href={`/exams/${exam.slug}`}
                                         className={`block w-full text-center px-4 py-3 rounded-lg font-medium transition-colors ${exam.premium
@@ -282,7 +259,7 @@ const ExamsPage = () => {
                         ))}
                     </div>
                 ) : (
-                    // No results state
+
                     <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                         <div className="mx-auto max-w-md">
                             <Search className="mx-auto h-12 w-12 text-gray-400" />
@@ -307,7 +284,6 @@ const ExamsPage = () => {
                     </div>
                 )}
 
-                {/* Premium CTA */}
                 <div className="mt-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg overflow-hidden">
                     <div className="p-8 md:p-10 text-center">
                         <div className="mx-auto max-w-3xl">
