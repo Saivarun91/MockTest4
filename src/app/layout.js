@@ -5,6 +5,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { UserProvider } from '@/context/UserContext';
 import ConditionalLayout from '@/components/ConditionalLayout';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,6 +27,13 @@ export default function RootLayout({ children }) {
               <main className="flex-grow">
                 {children}
               </main>
+              <ToastContainer
+                theme="dark"
+                position="top-right"
+                autoClose={3000}
+                closeOnClick
+                pauseOnHover={false}
+              />
             </ConditionalLayout>
 
           </div>

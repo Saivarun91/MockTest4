@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from './Navbar'; // adjust as needed
 import Footer from './Footer'; // adjust as needed
 
-const HIDDEN_PATHS = ['/mentor/dashboard', '/admin/dashboard'];
+const HIDDEN_PATHS = ['/mentor/dashboard', '/admin'];
 
 export default function ConditionalLayout({ children }) {
     const pathname = usePathname();

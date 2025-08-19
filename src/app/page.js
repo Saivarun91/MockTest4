@@ -4,97 +4,96 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Star, Clock, Zap, Award, CheckCircle, BarChart2, Users, BookOpen, Trophy, TrendingUp, Heart, Bookmark, Share2 } from 'lucide-react';
-import { allExams } from '@/data/exams';
+import { useUser } from '@/context/UserContext';
 
 export default function Home() {
-  // State for animated counter
-  const [counters, setCounters] = useState({
-    students: 0,
-    questions: 0,
-    passRate: 0,
-    exams: 0,
-    activeUsers: 0
-  });
+    const { courses } = useUser();
+    
+    // State for animated counter
+    const [counters, setCounters] = useState({
+        students: 0,
+        questions: 0,
+        passRate: 0,
+        exams: 0,
+        activeUsers: 0
+    });
 
-  // State for popularity metrics
-  const [popularityMetrics, setPopularityMetrics] = useState({
-    viewsToday: 0,
-    examsStarted: 0,
-    questionsAnswered: 0
-  });
+    // State for popularity metrics
+    const [popularityMetrics, setPopularityMetrics] = useState({
+        viewsToday: 0,
+        examsStarted: 0,
+        questionsAnswered: 0
+    });
 
-  // Animate counters on load
-  useEffect(() => {
-    const targetValues = {
-      students: 12543,
-      questions: 10200,
-      passRate: 95,
-      exams: 58,
-      activeUsers: 843
-    };
+    // Animate counters on load
+    useEffect(() => {
+        const targetValues = {
+            students: 12543,
+            questions: 10200,
+            passRate: 95,
+            exams: 58,
+            activeUsers: 843
+        };
 
-    const popularityTargets = {
-      viewsToday: 342,
-      examsStarted: 128,
-      questionsAnswered: 2457
-    };
+        const popularityTargets = {
+            viewsToday: 342,
+            examsStarted: 128,
+            questionsAnswered: 2457
+        };
 
-    const duration = 2000;
-    const startTime = Date.now();
+        const duration = 2000;
+        const startTime = Date.now();
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
 
-      setCounters({
-        students: Math.floor(progress * targetValues.students),
-        questions: Math.floor(progress * targetValues.questions),
-        passRate: Math.floor(progress * targetValues.passRate),
-        exams: Math.floor(progress * targetValues.exams),
-        activeUsers: Math.floor(progress * targetValues.activeUsers)
-      });
+            setCounters({
+                students: Math.floor(progress * targetValues.students),
+                questions: Math.floor(progress * targetValues.questions),
+                passRate: Math.floor(progress * targetValues.passRate),
+                exams: Math.floor(progress * targetValues.exams),
+                activeUsers: Math.floor(progress * targetValues.activeUsers)
+            });
 
-      if (progress > 0.5) {
-        const popProgress = (progress - 0.5) * 2;
-        setPopularityMetrics({
-          viewsToday: Math.floor(popProgress * popularityTargets.viewsToday),
-          examsStarted: Math.floor(popProgress * popularityTargets.examsStarted),
-          questionsAnswered: Math.floor(popProgress * popularityTargets.questionsAnswered)
-        });
-      }
+            if (progress > 0.5) {
+                const popProgress = (progress - 0.5) * 2;
+                setPopularityMetrics({
+                    viewsToday: Math.floor(popProgress * popularityTargets.viewsToday),
+                    examsStarted: Math.floor(popProgress * popularityTargets.examsStarted),
+                    questionsAnswered: Math.floor(popProgress * popularityTargets.questionsAnswered)
+                });
+            }
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
 
-    animate();
+        animate();
 
-    const interval = setInterval(() => {
-      setPopularityMetrics(prev => ({
-        viewsToday: prev.viewsToday + Math.floor(Math.random() * 3),
-        examsStarted: prev.examsStarted + Math.floor(Math.random() * 2),
-        questionsAnswered: prev.questionsAnswered + Math.floor(Math.random() * 10)
-      }));
-    }, 10000);
+        const interval = setInterval(() => {
+            setPopularityMetrics(prev => ({
+                viewsToday: prev.viewsToday + Math.floor(Math.random() * 3),
+                examsStarted: prev.examsStarted + Math.floor(Math.random() * 2),
+                questionsAnswered: prev.questionsAnswered + Math.floor(Math.random() * 10)
+            }));
+        }, 10000);
 
-    return () => clearInterval(interval);
-  }, []);
+        return () => clearInterval(interval);
+    }, []);
 
-  // Group exams by category
-  const examsByCategory = allExams.reduce((acc, exam) => {
-    if (!acc[exam.category]) {
-      acc[exam.category] = [];
-    }
-    acc[exam.category].push(exam);
-    return acc;
-  }, {});
+    // Group courses by category
+    const coursesByCategory = courses.reduce((acc, course) => {
+        if (!acc[course.category]) {
+            acc[course.category] = [];
+        }
+        acc[course.category].push(course);
+        return acc;
+    }, {});
 
-  const featuredExams = [
-    allExams.find(exam => exam.id === 1), // AWS Certified Solutions Architect
-    allExams.find(exam => exam.id === 5), // Full Stack Developer Certification
-    allExams.find(exam => exam.id === 9)  // Certified Ethical Hacking
-  ].filter(Boolean);
+    // Get featured courses (first 3 courses)
+    const featuredCourses = courses.slice(0, 3);
 
   // Features with icons
   const features = [
@@ -258,21 +257,21 @@ export default function Home() {
       {/* Floating Exam Cards */}
       <div className="container mx-auto px-4 relative -mt-16 z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredExams.map((exam) => (
-            <div key={exam.id} className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all transform hover:-translate-y-2">
+          {featuredCourses.map((course) => (
+            <div key={course.id} className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all transform hover:-translate-y-2">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">{exam.category}</span>
-                  {exam.new && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">{course.category}</span>
+                  {course.new && (
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">NEW</span>
                   )}
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{exam.title}</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h3>
 
                 <div className="flex items-center text-gray-600 mb-4">
                   <Clock className="w-4 h-4 mr-2" />
-                  <span>{exam.duration} • {exam.questions} Questions</span>
+                  <span>{course.duration} • {course.questions} Questions</span>
                 </div>
 
                 <div className="flex items-center mb-4">
@@ -280,24 +279,24 @@ export default function Home() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${i < Math.floor(exam.rating) ? 'fill-current' : ''}`}
+                        className={`w-4 h-4 ${i < Math.floor(course.avgRating) ? 'fill-current' : ''}`}
                       />
                     ))}
                   </div>
                   <span className="text-sm text-gray-600">
-                    {exam.rating} ({Math.floor(exam.students * 0.1).toLocaleString()}+ reviews)
+                    {course.avgRating} ({course.ratingCount} reviews)
                   </span>
                 </div>
 
                 <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
                   <div
                     className="bg-blue-600 h-2 rounded-full"
-                    style={{ width: `${exam.popularity}%` }}
+                    style={{ width: `${course.popularity}%` }}
                   ></div>
                 </div>
 
                 <Link
-                  href={`/exams/${exam.slug}`}
+                  href={`/exams/${course.slug}`}
                   className="block w-full text-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
                 >
                   Start Practicing Now
@@ -378,10 +377,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {Object.keys(examsByCategory).map((category) => {
-              const categoryExams = examsByCategory[category];
-              const examCount = categoryExams.length;
-              const mostPopularExam = [...categoryExams].sort((a, b) => b.popularity - a.popularity)[0];
+            {Object.keys(coursesByCategory).map((category) => {
+              const categoryCourses = coursesByCategory[category];
+              const courseCount = categoryCourses.length;
+              const mostPopularCourse = [...categoryCourses].sort((a, b) => b.popularity - a.popularity)[0];
 
               return (
                 <Link
@@ -393,9 +392,9 @@ export default function Home() {
                     <div className="p-6 flex-grow">
                       <div className="flex justify-between items-start mb-4">
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                          {examCount} {examCount === 1 ? 'Course' : 'Courses'}
+                          {courseCount} {courseCount === 1 ? 'Course' : 'Courses'}
                         </span>
-                        {categoryExams.some(exam => exam.new) && (
+                        {categoryCourses.some(course => course.new) && (
                           <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">NEW</span>
                         )}
                       </div>
@@ -404,23 +403,23 @@ export default function Home() {
                         {category}
                       </h3>
 
-                      {mostPopularExam && (
+                      {mostPopularCourse && (
                         <div className="mt-4">
                           <p className="text-sm text-gray-500 mb-1">Most Popular:</p>
                           <p className="text-sm font-medium text-gray-700 line-clamp-2">
-                            {mostPopularExam.title}
+                            {mostPopularCourse.title}
                           </p>
                           <div className="flex items-center mt-2">
                             <div className="flex text-yellow-400 mr-2">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`w-3 h-3 ${i < Math.floor(mostPopularExam.rating) ? 'fill-current' : ''}`}
+                                  className={`w-3 h-3 ${i < Math.floor(mostPopularCourse.avgRating) ? 'fill-current' : ''}`}
                                 />
                               ))}
                             </div>
                             <span className="text-xs text-gray-500">
-                              {mostPopularExam.rating}
+                              {mostPopularCourse.rating}
                             </span>
                           </div>
                         </div>
@@ -479,7 +478,7 @@ export default function Home() {
 
                     <div className="md:w-2/3">
                       <blockquote className="text-lg italic text-white mb-6">
-                        "I went from scoring {testimonial.before} on practice tests to {testimonial.after} on the actual exam after using this platform for just {testimonial.studyTime}."
+                        &ldquo;I went from scoring {testimonial.before} on practice tests to {testimonial.after} on the actual exam after using this platform for just {testimonial.studyTime}.&rdquo;
                       </blockquote>
                       <p className="text-blue-100">{testimonial.comment}</p>
 

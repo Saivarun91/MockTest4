@@ -1,12 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { allExams } from '@/data/exams';
+import { useUser } from '@/context/UserContext';
 import { CheckCircle, Star, Clock, BookOpen, Download, MessageSquare, Award, ChevronRight, Users, Shield, Trophy, Zap, BarChart2, BadgeCheck, Video, FileText, HelpCircle, ArrowRight, Percent, Calendar, Globe, Briefcase, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
+
 const ExamPage = () => {
     const { slug } = useParams();
+    const { user } = useUser();
     const [exam, setExam] = useState(null);
     const [isPurchased, setIsPurchased] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
@@ -19,29 +22,41 @@ const ExamPage = () => {
         minutes: 59,
         seconds: 59
     });
+    const [reviews, setReviews] = useState([]);
+    const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+
 
     useEffect(() => {
-        const purchasedCourses = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
-        const foundExam = allExams.find(e => e.slug === slug);
+        const fetchCourseDetails = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/slug/${slug}/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setExam(data.data);
 
-        if (foundExam) {
-            setExam(foundExam);
-            setIsPurchased(purchasedCourses.includes(foundExam.id));
-            setIsLoading(false);
-        } else {
-            setIsLoading(false);
-        }
+                    if (user) {
+                        const enrollmentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/enrollments/check/?user_id=${user._id}&course_slug=${slug}`);
+                        if (enrollmentResponse.ok) {
+                            const enrollmentData = await enrollmentResponse.json();
+                            setIsPurchased(enrollmentData.is_enrolled);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching course details:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        // Countdown timer
+        fetchCourseDetails();
+
         const timer = setInterval(() => {
             setTimeLeft(prev => {
-                if (prev.seconds > 0) {
-                    return { ...prev, seconds: prev.seconds - 1 };
-                } else if (prev.minutes > 0) {
-                    return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-                } else if (prev.hours > 0) {
-                    return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-                } else {
+                if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+                else if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+                else if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+                else {
                     clearInterval(timer);
                     return { hours: 0, minutes: 0, seconds: 0 };
                 }
@@ -49,18 +64,166 @@ const ExamPage = () => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [slug]);
+    }, [slug, user]);
 
-    const handlePurchase = (planId) => {
-        const purchasedCourses = JSON.parse(localStorage.getItem('purchasedCourses') || '[]');
-        purchasedCourses.push(exam.id);
-        localStorage.setItem('purchasedCourses', JSON.stringify(purchasedCourses));
-        setIsPurchased(true);
+    useEffect(() => {
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        document.body.appendChild(script);
+    }, []);
 
-        // Show success notification
-        setShowNotification(true);
-        setTimeout(() => setShowNotification(false), 3000);
+    useEffect(() => {
+        if (user && exam?.id) {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/check-purchase/${exam.id}/`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.isPurchased) setIsPurchased(true);
+                })
+                .catch((err) => console.error(err));
+        }
+    }, [user, exam]);
+
+    useEffect(() => {
+        if (exam?.id) {
+            fetchReviews();
+        }
+    }, [exam]);
+
+    const fetchReviews = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${exam.id}/`);
+            const data = await res.json();
+            console.log("data.reviews", data.reviews)
+            if (res.ok) {
+                if (data.success) {
+                    setReviews(data.reviews);
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching reviews:", err);
+        }
     };
+
+    const handleReviewSubmit = async () => {
+        if (!user) {
+            toast.error("Please log in to submit a review.");
+            return;
+        }
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${exam.id}/add/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify(newReview)
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Create an optimistic review object
+                const newReviewObj = {
+                    user: {
+                        name: user.name,
+                        email: user.email
+                    },
+                    rating: newReview.rating,
+                    comment: newReview.comment,
+                    createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                };
+
+                // Instant UI update
+                setReviews(prev => [newReviewObj, ...prev]);
+
+                // Clear input fields
+                setNewReview({ rating: 5, comment: '' });
+
+                // Sync with server data in the background
+                fetchReviews();
+                toast.success("Review submitted successfully")
+            } else {
+                toast.error(data.message);
+            }
+        } catch (err) {
+            console.error("Error submitting review:", err);
+        }
+    };
+
+
+    const handlePurchase = async (planId) => {
+        if (!user) {
+            toast.error("Please log in to continue");
+            return;
+        }
+        console.log("course_id : ", exam.id);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/create-order/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify({
+                    course_id: exam.id,
+                }),
+            });
+
+            const orderData = await res.json();
+            if (!orderData.success) {
+                toast.error(orderData.message);
+                return;
+            }
+
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Exam Questions",
+                description: exam.title,
+                order_id: orderData.order_id,
+                handler: async function (response) {
+                        const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/verify/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                        body: JSON.stringify({
+                            payment_id: orderData.payment_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                        }),
+                    });
+
+                    const verifyData = await verifyRes.json();
+                    if (verifyData.success) {
+                        setIsPurchased(true);
+                        setShowNotification(true);
+                        setTimeout(() => setShowNotification(false), 3000);
+                    } else {
+                        toast.error("Payment verification failed");
+                    }
+                },
+                prefill: {
+                    name: user.name,
+                    email: user.email,
+                },
+                theme: {
+                    color: "#3399cc",
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+            toast.success("payment successful")
+        } catch (err) {
+            console.error(err);
+            toast.error("Payment could not be started");
+        }
+    };
+
 
     const toggleAccordion = (index) => {
         setActiveAccordion(activeAccordion === index ? null : index);
@@ -105,6 +268,86 @@ const ExamPage = () => {
         }
     };
 
+    // For demo purposes, we'll create mock plans based on course price
+    const mockPlans = [
+        {
+            id: 'basic',
+            name: 'Basic',
+            duration: '3 months',
+            price: exam.price, // 20% discount
+            features: [
+                'Full course access',
+                'Practice questions',
+                'Progress tracking'
+            ]
+        },
+
+    ];
+
+    // For demo purposes, we'll create mock syllabus if not available
+    const mockSyllabus = exam.syllabus && exam.syllabus.length > 0 ? exam.syllabus : [
+        {
+            week: 1,
+            title: 'Introduction to ' + exam.title,
+            topics: [
+                'Course overview',
+                'Exam structure',
+                'Study techniques',
+                'Resource materials'
+            ]
+        },
+        {
+            week: 2,
+            title: 'Core Concepts',
+            topics: [
+                'Fundamental principles',
+                'Key terminology',
+                'Basic configurations'
+            ]
+        },
+        {
+            week: 3,
+            title: 'Advanced Topics',
+            topics: [
+                'Complex scenarios',
+                'Troubleshooting',
+                'Best practices'
+            ]
+        },
+        {
+            week: 4,
+            title: 'Exam Preparation',
+            topics: [
+                'Practice tests',
+                'Time management',
+                'Test-taking strategies'
+            ]
+        }
+    ];
+
+    // For demo purposes, we'll create mock FAQs if not available
+    const mockFaqs = exam.faqs && exam.faqs.length > 0 ? exam.faqs : [
+        {
+            question: 'How long do I have access to the course?',
+            answer: 'Access duration depends on the plan you choose (3 months, 6 months, or 1 year).'
+        },
+        {
+            question: 'Is there a money-back guarantee?',
+            answer: 'Yes, we offer a 30-day money-back guarantee if you\'re not satisfied with the course.'
+        },
+        {
+            question: 'How often is the course content updated?',
+            answer: 'We update our content regularly to reflect the latest exam changes and industry trends.'
+        },
+        {
+            question: 'Do I need any prerequisites for this course?',
+            answer: 'Basic knowledge of the subject is recommended but not required as we cover fundamentals.'
+        }
+    ];
+
+    // For demo purposes, we'll create mock instructor data
+    console.log(reviews)
+
     return (
         <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen">
             {/* Hero Section with Background Image */}
@@ -131,12 +374,6 @@ const ExamPage = () => {
                                     New & Updated
                                 </span>
                             )}
-                            {exam.premium && (
-                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full flex items-center">
-                                    <Star className="w-3 h-3 mr-1 fill-current" />
-                                    Premium
-                                </span>
-                            )}
                         </div>
 
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{exam.title}</h1>
@@ -145,20 +382,16 @@ const ExamPage = () => {
                         <div className="flex flex-wrap items-center gap-6 mb-6">
                             <div className="flex items-center text-yellow-300">
                                 <Star className="w-6 h-6 fill-current" />
-                                <span className="ml-2 font-bold">{exam.rating}</span>
-                                <span className="text-blue-200 ml-2">({Math.floor(exam.rating * 1000)} reviews)</span>
+                                <span className="ml-2 font-bold">{exam.avgRating?.toFixed(1) || '4.8'}</span>
+                                <span className="text-blue-200 ml-2">({exam.ratingCount || '1000'} reviews)</span>
                             </div>
                             <div className="flex items-center text-blue-100">
                                 <Users className="w-6 h-6" />
-                                <span className="ml-2">{exam.students.toLocaleString()}+ students</span>
-                            </div>
-                            <div className="flex items-center text-blue-100">
-                                <Trophy className="w-6 h-6" />
-                                <span className="ml-2">{exam.difficulty} level</span>
+                                <span className="ml-2">{exam.enrolled_count?.toLocaleString() || '5000'}+ students</span>
                             </div>
                             <div className="flex items-center text-blue-100">
                                 <Calendar className="w-6 h-6" />
-                                <span className="ml-2">Updated {exam.lastUpdated}</span>
+                                <span className="ml-2">Updated {exam.lastUpdated || 'recently'}</span>
                             </div>
                         </div>
 
@@ -281,35 +514,7 @@ const ExamPage = () => {
                             </div>
                         </div>
 
-                        {/* Course Highlights */}
-                        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                                <Zap className="w-6 h-6 text-yellow-500 mr-2" />
-                                Why Choose This Course?
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
-                                    <BarChart2 className="w-8 h-8 text-blue-600 mb-3" />
-                                    <h3 className="font-bold text-lg mb-2">High Success Rate</h3>
-                                    <p className="text-gray-600">94% of our students pass the exam on their first attempt.</p>
-                                </div>
-                                <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
-                                    <Users className="w-8 h-8 text-blue-600 mb-3" />
-                                    <h3 className="font-bold text-lg mb-2">Expert Instructors</h3>
-                                    <p className="text-gray-600">Learn from {exam.instructor.name}, {exam.instructor.role} with {exam.instructor.experience} experience.</p>
-                                </div>
-                                <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
-                                    <FileText className="w-8 h-8 text-blue-600 mb-3" />
-                                    <h3 className="font-bold text-lg mb-2">Updated Content</h3>
-                                    <p className="text-gray-600">Latest exam syllabus updated on {exam.lastUpdated}.</p>
-                                </div>
-                                <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-lg border border-blue-100 hover:shadow-md transition-shadow">
-                                    <BadgeCheck className="w-8 h-8 text-blue-600 mb-3" />
-                                    <h3 className="font-bold text-lg mb-2">Practice Exams</h3>
-                                    <p className="text-gray-600">{exam.questions} practice questions with detailed explanations.</p>
-                                </div>
-                            </div>
-                        </div>
+
 
                         {/* Success Stories Carousel */}
                         <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl shadow-lg p-6 mb-8">
@@ -345,7 +550,7 @@ const ExamPage = () => {
                         {/* Navigation Tabs */}
                         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
                             <nav className="flex overflow-x-auto">
-                                {['overview', 'syllabus', 'instructor', 'reviews', 'faqs'].map((tab) => (
+                                {['overview', 'syllabus', 'reviews', 'faqs'].map((tab) => (
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
@@ -393,7 +598,7 @@ const ExamPage = () => {
 
                                             <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">What You'll Learn</h3>
                                             <ul className="space-y-3">
-                                                {exam.features.map((feature, index) => (
+                                                {(exam.features || ['Comprehensive exam preparation', 'Real-world scenarios', 'Hands-on practice', 'Exam strategies']).map((feature, index) => (
                                                     <li key={index} className="flex items-start">
                                                         <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                                                         <span className="text-gray-700">{feature}</span>
@@ -409,11 +614,11 @@ const ExamPage = () => {
                                                 </div>
                                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-sm transition-shadow">
                                                     <div className="text-sm text-blue-600 font-medium">Duration</div>
-                                                    <div className="font-medium text-gray-800">{exam.duration}</div>
+                                                    <div className="font-medium text-gray-800">{exam.duration || '2 hours'}</div>
                                                 </div>
                                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-sm transition-shadow">
                                                     <div className="text-sm text-blue-600 font-medium">Questions</div>
-                                                    <div className="font-medium text-gray-800">{exam.questions} (practice bank)</div>
+                                                    <div className="font-medium text-gray-800">{exam.questions || '500+'} (practice bank)</div>
                                                 </div>
                                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:shadow-sm transition-shadow">
                                                     <div className="text-sm text-blue-600 font-medium">Passing Score</div>
@@ -428,7 +633,7 @@ const ExamPage = () => {
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-900 mb-6">Course Syllabus</h2>
                                         <div className="space-y-4">
-                                            {exam.syllabus.map((week, index) => (
+                                            {mockSyllabus.map((week, index) => (
                                                 <div key={index} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                                                     <button
                                                         className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100"
@@ -464,55 +669,99 @@ const ExamPage = () => {
                                     </div>
                                 )}
 
-                                {activeTab === 'instructor' && (
-                                    <div>
-                                        <h2 className="text-xl font-bold text-gray-900 mb-6">About the Instructor</h2>
-                                        <div className="flex flex-col md:flex-row gap-6">
-                                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-md">
-                                                <span className="text-blue-600 text-3xl font-bold">
-                                                    {exam.instructor.name.charAt(0)}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <h3 className="text-2xl font-bold text-gray-900">{exam.instructor.name}</h3>
-                                                <p className="text-gray-600 mb-3">{exam.instructor.role} • {exam.instructor.experience} experience</p>
-                                                <p className="text-gray-600 mb-4">With over {exam.instructor.students.toLocaleString()} students taught, {exam.instructor.name.split(' ')[0]} brings real-world expertise to help you master the {exam.title} exam.</p>
-                                                <div className="flex items-center text-gray-600">
-                                                    <Star className="w-5 h-5 text-yellow-400 fill-current mr-1" />
-                                                    <span className="font-medium">4.9</span>
-                                                    <span className="mx-1">•</span>
-                                                    <span>{Math.floor(exam.instructor.students / 1000)}k+ Reviews</span>
-                                                    <span className="mx-1">•</span>
-                                                    <span>10+ Industry Certifications</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+
 
                                 {activeTab === 'reviews' && (
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-900 mb-6">Student Reviews</h2>
                                         <div className="space-y-6">
-                                            {[1, 2, 3].map((review) => (
-                                                <div key={review} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                                                    <div className="flex items-center mb-3">
-                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 mr-3 flex items-center justify-center text-blue-600 font-medium">
-                                                            {review}
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-medium">Student {review}</h4>
-                                                            <div className="flex items-center">
-                                                                {[...Array(5)].map((_, i) => (
-                                                                    <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                                                                ))}
-                                                            </div>
+                                            {user && (
+                                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                                                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                                        <MessageSquare className="w-5 h-5 text-blue-600 mr-2" />
+                                                        Share Your Experience
+                                                    </h3>
+
+                                                    <div className="mb-4">
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Your Rating
+                                                        </label>
+                                                        <div className="flex items-center space-x-1">
+                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                <button
+                                                                    key={star}
+                                                                    type="button"
+                                                                    onClick={() => setNewReview({ ...newReview, rating: star })}
+                                                                    className={`w-8 h-8 ${newReview.rating >= star
+                                                                        ? 'text-yellow-400'
+                                                                        : 'text-gray-300'}`}
+                                                                >
+                                                                    <Star
+                                                                        className="w-full h-full"
+                                                                        fill={newReview.rating >= star ? 'currentColor' : 'none'}
+                                                                        stroke="currentColor"
+                                                                        strokeWidth={1.5}
+                                                                    />
+                                                                </button>
+                                                            ))}
+                                                            <span className="ml-2 text-sm text-gray-600">
+                                                                {newReview.rating} {newReview.rating === 1 ? 'star' : 'stars'}
+                                                            </span>
                                                         </div>
                                                     </div>
-                                                    <p className="text-gray-600 mb-2">"This course prepared me perfectly for the exam. The practice questions were very similar to the real thing."</p>
-                                                    <div className="text-sm text-gray-500">Completed on {new Date().toLocaleDateString()}</div>
+
+                                                    <div className="mb-4">
+                                                        <label htmlFor="review-text" className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Your Review
+                                                        </label>
+                                                        <textarea
+                                                            id="review-text"
+                                                            value={newReview.comment}
+                                                            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                            placeholder="Share your thoughts about this course..."
+                                                            rows="4"
+                                                        />
+                                                    </div>
+
+                                                    <button
+                                                        onClick={handleReviewSubmit}
+                                                        disabled={!newReview.comment.trim()}
+                                                        className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${!newReview.comment.trim()
+                                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:scale-[1.01]'}`}
+                                                    >
+                                                        Submit Review
+                                                    </button>
+
+                                                    <p className="text-xs text-gray-500 mt-3">
+                                                        Your review will help other students make informed decisions.
+                                                    </p>
                                                 </div>
-                                            ))}
+                                            )}
+
+                                            <div className="space-y-6">
+                                                {reviews.map((review, index) => (
+                                                    <div key={index} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
+                                                        <div className="flex items-center mb-3">
+                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 mr-3 flex items-center justify-center text-blue-600 font-medium">
+                                                                {review.user?.name?.charAt(0).toUpperCase() || 'U'}
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="font-medium">{review.user.name}</h4>
+                                                                <div className="flex items-center">
+                                                                    {[...Array(5)].map((_, i) => (
+                                                                        <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-gray-600 mb-2">{review.comment}</p>
+                                                        <div className="text-sm text-gray-500">Reviewed on {review.createdAt}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
                                         </div>
                                     </div>
                                 )}
@@ -521,7 +770,7 @@ const ExamPage = () => {
                                     <div>
                                         <h2 className="text-xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
                                         <div className="space-y-4">
-                                            {exam.faqs.map((faq, index) => (
+                                            {mockFaqs.map((faq, index) => (
                                                 <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                                                     <h3 className="font-medium text-gray-900 flex items-center">
                                                         <HelpCircle className="w-5 h-5 text-blue-500 mr-2" />
@@ -539,8 +788,10 @@ const ExamPage = () => {
 
                     {/* Right Sidebar */}
                     <div className="lg:w-1/3" id="pricing">
+                        {/* Main Pricing Card */}
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sticky top-6">
                             {isPurchased ? (
+                                // Purchased State
                                 <>
                                     <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-100 rounded-lg p-4 mb-6">
                                         <div className="flex items-center text-green-800 mb-2">
@@ -549,215 +800,221 @@ const ExamPage = () => {
                                         </div>
                                         <p className="text-sm text-green-700">Expires in 6 months</p>
                                     </div>
+
                                     <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-4 rounded-lg font-bold flex items-center justify-center mb-3 transition-all transform hover:scale-[1.01] shadow-md">
                                         <Download className="w-5 h-5 mr-2" />
                                         Download Study Materials
                                     </button>
-                                    <a href={`/exams/${exam.slug}/test`} className="block w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 px-4 rounded-lg font-bold text-center transition-all transform hover:scale-[1.01] shadow-md">
+
+                                    <a
+                                        href={`/exams/${exam.slug}/test`}
+                                        className="block w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 px-4 rounded-lg font-bold text-center transition-all transform hover:scale-[1.01] shadow-md"
+                                    >
                                         Start Practice Exam
                                     </a>
                                 </>
                             ) : (
+                                // Not Purchased State
                                 <>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Certified</h3>
+
+                                    {/* Pricing Plans */}
                                     <div className="space-y-4 mb-6">
-                                        {exam.plans.map(plan => (
+                                        {mockPlans.map(plan => (
                                             <div
                                                 key={plan.id}
-                                                className={`border-2 rounded-xl p-5 transition-all ${plan.id === 'premium' || plan.id === 'pro' ? 'border-yellow-300 bg-gradient-to-br from-yellow-50 to-white shadow-md' : 'border-blue-200 bg-gradient-to-br from-blue-50 to-white'} hover:shadow-lg`}
+                                                className={`border-2 rounded-xl p-5 transition-all ${plan.id === 'premium' || plan.id === 'pro'
+                                                    ? 'border-yellow-300 bg-gradient-to-br from-yellow-50 to-white shadow-md'
+                                                    : 'border-blue-200 bg-gradient-to-br from-blue-50 to-white'
+                                                    } hover:shadow-lg`}
                                             >
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <div className="font-bold text-lg">{plan.name} Plan</div>
                                                         <div className="text-sm text-gray-600">{plan.duration} access</div>
                                                     </div>
-                                                    <div className="text-2xl font-bold text-gray-900">${plan.price}</div>
+                                                    <div className="text-2xl font-bold text-gray-900">RS. {plan.price}</div>
                                                 </div>
+
                                                 <ul className="space-y-2 mt-3">
                                                     {plan.features.map((feature, i) => (
                                                         <li key={i} className="flex items-start text-sm">
                                                             <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                            <span>{feature}</span>
+                                                            <span className="text-gray-700">{feature}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
+
                                                 <button
-                                                    onClick={() => handlePurchase(plan.id)}
-                                                    className={`w-full mt-4 py-3 px-4 rounded-lg font-bold ${plan.id === 'premium' || plan.id === 'pro' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'} transition-all transform hover:scale-[1.01] shadow-md`}
+                                                    onClick={() => handlePurchase(mockPlans[0].id)}
+                                                    className={`w-full mt-4 py-2 px-4 rounded-lg font-medium transition-all ${plan.id === 'premium' || plan.id === 'pro'
+                                                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white'
+                                                        : 'bg-blue-100 hover:bg-blue-200 text-blue-700'
+                                                        } shadow-sm hover:shadow-md`}
                                                 >
                                                     Enroll Now
                                                 </button>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                                        <h4 className="font-bold text-blue-800 mb-2">What's included:</h4>
-                                        <ul className="space-y-2 text-sm">
-                                            <li className="flex items-start">
-                                                <CheckCircle className="w-4 h-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                <span>Full practice question bank</span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <CheckCircle className="w-4 h-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                <span>Detailed explanations</span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <CheckCircle className="w-4 h-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                <span>Performance analytics</span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <CheckCircle className="w-4 h-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                                                <span>30-day money-back guarantee</span>
-                                            </li>
-                                        </ul>
+
+                                    {/* Limited Time Offer */}
+                                    {/* <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center text-blue-800 mb-2">
+            <Clock className="w-5 h-5 mr-2" />
+            <span className="font-bold">Limited Time Offer</span>
+          </div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-700">Ends in:</span>
+            <div className="flex items-center space-x-1 font-mono">
+              <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm">
+                {timeLeft.hours.toString().padStart(2, '0')}
+              </span>
+              <span>:</span>
+              <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm">
+                {timeLeft.minutes.toString().padStart(2, '0')}
+              </span>
+              <span>:</span>
+              <span className="bg-gray-800 text-white px-2 py-1 rounded text-sm">
+                {timeLeft.seconds.toString().padStart(2, '0')}
+              </span>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600">Get 20% off on all plans today!</p>
+        </div> */}
+
+                                    {/* Money Back Guarantee */}
+                                    <div className="flex items-start border border-green-200 bg-green-50 rounded-lg p-4">
+                                        <Shield className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <h4 className="font-medium text-green-800 mb-1">30-Day Money-Back Guarantee</h4>
+                                            <p className="text-sm text-green-700">
+                                                If you're not satisfied, we'll refund your payment. No questions asked.
+                                            </p>
+                                        </div>
                                     </div>
                                 </>
                             )}
                         </div>
 
+                        {/* Resources Card */}
+                        {/* <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mt-6">
+    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+      <BookOpen className="w-5 h-5 text-blue-600 mr-2" />
+      Free Resources
+    </h3>
+    <ul className="space-y-3">
+      <li className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+        <FileText className="w-5 h-5 text-blue-600 mr-3" />
+        <span className="font-medium">Exam Blueprint PDF</span>
+      </li>
+      <li className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+        <Video className="w-5 h-5 text-blue-600 mr-3" />
+        <span className="font-medium">Study Tips Video</span>
+      </li>
+      <li className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+        <MessageSquare className="w-5 h-5 text-blue-600 mr-3" />
+        <span className="font-medium">Community Forum Access</span>
+      </li>
+      <li className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+        <Download className="w-5 h-5 text-blue-600 mr-3" />
+        <span className="font-medium">Practice Question Samples</span>
+      </li>
+    </ul>
+  </div> */}
+
                         {/* Exam Details Card */}
-                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mt-6">
-                            <h3 className="text-xl font-bold text-gray-900 mb-4">Exam Details</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-start">
-                                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                                        <Clock className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm text-gray-500">Duration</div>
-                                        <div className="font-medium text-gray-800">{exam.duration}</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start">
-                                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                                        <BookOpen className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm text-gray-500">Questions</div>
-                                        <div className="font-medium text-gray-800">{exam.questions} practice questions</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start">
-                                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                                        <Award className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm text-gray-500">Difficulty</div>
-                                        <div className="font-medium text-gray-800">{exam.difficulty}</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-start">
-                                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                                        <Star className="w-5 h-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm text-gray-500">Rating</div>
-                                        <div className="font-medium text-gray-800">{exam.rating}/5 ({Math.floor(exam.rating * 1000)} reviews)</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Limited Time Offer */}
-                        {!isPurchased && (
-                            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mt-6">
-                                <h3 className="text-xl font-bold mb-2">Limited Time Offer!</h3>
-                                <p className="text-purple-100 mb-4">Enroll today and get access to bonus materials worth $50</p>
-                                <div className="flex items-center justify-center bg-white/10 rounded-lg p-3 mb-4">
-                                    <div className="text-center">
-                                        <div className="text-xs text-purple-200">Offer ends in</div>
-                                        <div className="font-bold text-xl">
-                                            {timeLeft.hours.toString().padStart(2, '0')}:
-                                            {timeLeft.minutes.toString().padStart(2, '0')}:
-                                            {timeLeft.seconds.toString().padStart(2, '0')}
-                                        </div>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => handlePurchase(exam.plans[0].id)}
-                                    className="w-full bg-white hover:bg-gray-100 text-purple-600 py-3 px-4 rounded-lg font-bold transition-all transform hover:scale-[1.01] shadow-md"
-                                >
-                                    Claim Offer Now
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Mentor Support Card */}
-                        {isPurchased && (
-                            <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg border border-blue-100 p-6 mt-6">
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">Need help?</h3>
-                                <p className="text-gray-600 mb-4">Get personalized support from our certified mentors to help you pass your exam.</p>
-                                <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-4 rounded-lg font-bold flex items-center justify-center transition-all transform hover:scale-[1.01] shadow-md">
-                                    <MessageSquare className="w-5 h-5 mr-2" />
-                                    Ask a Mentor
-                                </button>
-                            </div>
-                        )}
+                        {/* <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mt-6">
+    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+      <Award className="w-5 h-5 text-blue-600 mr-2" />
+      Exam Details
+    </h3>
+    <div className="space-y-4">
+      <div className="flex items-start">
+        <Clock className="w-5 h-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="font-medium text-gray-900">Duration</h4>
+          <p className="text-sm text-gray-600">{exam.duration || '2 hours'}</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <FileText className="w-5 h-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="font-medium text-gray-900">Format</h4>
+          <p className="text-sm text-gray-600">Multiple choice, drag & drop, simulations</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <Percent className="w-5 h-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="font-medium text-gray-900">Passing Score</h4>
+          <p className="text-sm text-gray-600">720/1000 (72%)</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <Calendar className="w-5 h-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="font-medium text-gray-900">Scheduling</h4>
+          <p className="text-sm text-gray-600">On-demand at testing centers</p>
+        </div>
+      </div>
+    </div>
+  </div> */}
                     </div>
                 </div>
             </div>
 
-            {/* Certification Value Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 py-16 border-t border-gray-200">
+            {/* Related Courses Section */}
+            <div className="bg-gray-50 py-12">
                 <div className="container mx-auto px-4">
-                    <div className="text-center max-w-3xl mx-auto mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Get Certified?</h2>
-                        <p className="text-gray-600 text-lg">Certifications validate your skills, increase your earning potential, and open doors to new career opportunities.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                                <TrendingUp className="w-6 h-6 text-blue-600" />
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">More Certifications You Might Like</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[1, 2, 3].map((course) => (
+                            <div key={course} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                                <div className="h-40 bg-gradient-to-r from-blue-100 to-indigo-100"></div>
+                                <div className="p-5">
+                                    <div className="flex items-center mb-2">
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                                            {exam.category}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-bold text-lg mb-2">Related Certification {course}</h3>
+                                    <p className="text-gray-600 text-sm mb-4">Short description of this related certification course.</p>
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold text-gray-900">${exam.price + course * 50}</span>
+                                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            View Details <ArrowRight className="w-4 h-4 inline ml-1" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Higher Salaries</h3>
-                            <p className="text-gray-600">Certified professionals earn 20-40% more on average compared to non-certified peers.</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                                <Briefcase className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Career Advancement</h3>
-                            <p className="text-gray-600">Stand out in job applications and qualify for more senior positions.</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                                <Globe className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Global Recognition</h3>
-                            <p className="text-gray-600">Industry-recognized credentials valued by employers worldwide.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Trust Badges Section */}
-            <div className="bg-gray-50 border-t border-gray-200 py-12">
-                <div className="container mx-auto px-4">
-                    <h3 className="text-center text-gray-500 text-sm font-medium mb-6">TRUSTED BY PROFESSIONALS AT</h3>
-                    <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70">
-                        <div className="w-32 h-16 bg-gray-200 rounded-lg"></div>
-                        <div className="w-32 h-16 bg-gray-200 rounded-lg"></div>
-                        <div className="w-32 h-16 bg-gray-200 rounded-lg"></div>
-                        <div className="w-32 h-16 bg-gray-200 rounded-lg"></div>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* Final CTA */}
-            {!isPurchased && (
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
-                    <div className="container mx-auto px-4 text-center">
-                        <h2 className="text-3xl font-bold mb-4">Ready to advance your career?</h2>
-                        <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join {exam.students.toLocaleString()}+ professionals who've boosted their careers with this certification.</p>
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-3xl font-bold mb-4">Ready to Boost Your Career?</h2>
+                    <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Join thousands of professionals who have advanced their careers with this certification.</p>
+                    {!isPurchased ? (
                         <button
                             onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })}
-                            className="bg-white hover:bg-gray-100 text-blue-600 py-4 px-8 rounded-lg font-bold text-lg transition-all transform hover:scale-[1.02] shadow-lg"
+                            className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition-all transform hover:scale-[1.02] inline-flex items-center"
                         >
-                            Enroll Now - Start Learning Today
+                            Enroll Now <ArrowRight className="w-5 h-5 ml-2" />
                         </button>
-                    </div>
+                    ) : (
+                        <Link
+                            href={`/exams/${exam.slug}/test`}
+                            className="bg-gradient-to-r from-green-400 to-teal-500 hover:from-green-500 hover:to-teal-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition-all transform hover:scale-[1.02] inline-flex items-center"
+                        >
+                            Start Learning <ArrowRight className="w-5 h-5 ml-2" />
+                        </Link>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };

@@ -30,7 +30,7 @@ export default function AdminDashboard() {
             }
 
             // Fetch dashboard stats
-            const statsResponse = await fetch('http://127.0.0.1:8000/api/courses/admin/stats/', {
+            const statsResponse = await fetch('process.env.NEXT_PUBLIC_API_URL/api/courses/admin/stats/', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
             }
 
             // Fetch recent enrollments
-            const enrollmentsResponse = await fetch('http://127.0.0.1:8000/api/courses/admin/recent-enrollments/', {
+            const enrollmentsResponse = await fetch('process.env.NEXT_PUBLIC_API_URL/api/courses/admin/recent-enrollments/', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

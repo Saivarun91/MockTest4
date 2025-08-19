@@ -1,6 +1,5 @@
 'use client';
 import { useParams } from 'next/navigation';
-import { allExams } from '@/data/exams';
 import Link from 'next/link';
 import { StarIcon, ArrowRightIcon, ChartBarIcon, ClockIcon, UserGroupIcon, CheckIcon, BoltIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
@@ -9,10 +8,24 @@ export default function CourseCategoryPage() {
     const { category } = useParams();
     const decodedCategory = decodeURIComponent(category);
     const [hoveredCourse, setHoveredCourse] = useState(null);
+    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredCourses = allExams.filter(
-        (course) => course.category === decodedCategory
-    );
+    useEffect(() => {
+        async function fetchCourses() {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/category/${encodeURIComponent(decodedCategory)}/`);
+                const data = await res.json();
+                setCourses(data);
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchCourses();
+    }, [decodedCategory]);
 
     // Background images for different categories
     const categoryBackgrounds = {
@@ -26,6 +39,17 @@ export default function CourseCategoryPage() {
     };
 
     const backgroundClass = categoryBackgrounds[decodedCategory] || 'bg-gradient-to-r from-blue-600 to-indigo-700';
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="mt-4 text-lg font-medium">Loading {decodedCategory} courses...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -134,7 +158,7 @@ export default function CourseCategoryPage() {
             </div>
 
             {/* Featured Courses */}
-            <div className="mb-12">
+            <div className="mb-12" id="courses">
                 <h2 className="text-2xl font-bold mb-6 flex items-center">
                     <span className="bg-blue-100 text-blue-800 p-2 rounded-lg mr-3">
                         <ChartBarIcon className="h-6 w-6" />
@@ -142,75 +166,137 @@ export default function CourseCategoryPage() {
                     Popular {decodedCategory} Courses
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCourses.map((course) => (
-                        <div
-                            key={course.slug}
-                            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative"
-                            onMouseEnter={() => setHoveredCourse(course.id)}
-                            onMouseLeave={() => setHoveredCourse(null)}
-                        >
-                            <div className="relative">
-                                <div className={`h-48 ${hoveredCourse === course.id ? 'bg-gradient-to-r from-blue-600 to-indigo-700' : 'bg-gradient-to-r from-blue-500 to-indigo-600'} flex items-center justify-center transition-all duration-300`}>
-                                    <span className="text-white text-4xl font-bold transition-transform duration-300" style={{ transform: hoveredCourse === course.id ? 'scale(1.2)' : 'scale(1)' }}>
-                                        {course.title.charAt(0)}
-                                    </span>
-                                </div>
-                                {course.isPopular && (
-                                    <div className="absolute top-4 left-4 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                        Most Popular
-                                    </div>
-                                )}
-                                {course.new && (
-                                    <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                        New
-                                    </div>
-                                )}
-                                {course.premium && (
-                                    <div className="absolute bottom-4 right-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                        Premium
-                                    </div>
-                                )}
-                            </div>
-                            <div className="p-6">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-xl font-bold text-gray-900">{course.title}</h3>
-                                    <div className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                                        <StarIcon className="h-4 w-4 mr-1 fill-yellow-400" />
-                                        {course.rating || '4.8'}
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 mb-4 line-clamp-2">{course.description}</p>
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        <ClockIcon className="h-4 w-4 mr-1" />
-                                        {course.duration || '6 weeks'}
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        <UserGroupIcon className="h-4 w-4 mr-1" />
-                                        {course.students || '1,200+'} students
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-between items-center">
-                                    <span className="text-lg font-bold text-gray-900">
-                                        {course.price ? `$${course.price}` : 'Free'}
-                                        {course.plans && course.plans.length > 1 && (
-                                            <span className="text-sm font-normal text-gray-500 ml-1">starting at</span>
+                {courses.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-xl">
+                        <h3 className="text-xl font-medium text-gray-600">No courses found in this category</h3>
+                        <p className="mt-2 text-gray-500">We're working on adding new courses. Check back soon!</p>
+                        <Link href="/courses" className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Browse All Courses
+                        </Link>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {courses.map((course) => (
+                                <div
+                                    key={course.id}
+                                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative"
+                                    onMouseEnter={() => setHoveredCourse(course.id)}
+                                    onMouseLeave={() => setHoveredCourse(null)}
+                                >
+                                    <div className="relative">
+                                        <div className={`h-48 ${hoveredCourse === course.id ? 'bg-gradient-to-r from-blue-600 to-indigo-700' : 'bg-gradient-to-r from-blue-500 to-indigo-600'} flex items-center justify-center transition-all duration-300`}>
+                                            <span className="text-white text-4xl font-bold transition-transform duration-300" style={{ transform: hoveredCourse === course.id ? 'scale(1.2)' : 'scale(1)' }}>
+                                                {course.title.charAt(0)}
+                                            </span>
+                                        </div>
+                                        {course.is_popular && (
+                                            <div className="absolute top-4 left-4 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                                Most Popular
+                                            </div>
                                         )}
-                                    </span>
-                                    <Link
-                                        href={`/exams/${course.slug}`}
-                                        className="flex items-center text-blue-600 hover:text-blue-800 font-medium group"
-                                    >
-                                        Explore <ArrowRightIcon className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
+                                        {course.is_new && (
+                                            <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                                New
+                                            </div>
+                                        )}
+                                        {course.is_premium && (
+                                            <div className="absolute bottom-4 right-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                                                Premium
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-xl font-bold text-gray-900">{course.title}</h3>
+                                            <div className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                                                <StarIcon className="h-4 w-4 mr-1 fill-yellow-400" />
+                                                {course.avgRating || '4.8'}
+                                            </div>
+                                        </div>
+                                        <p className="text-gray-600 mb-4 line-clamp-2">{course.description}</p>
+
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            <div className="flex items-center text-sm text-gray-500">
+                                                <ClockIcon className="h-4 w-4 mr-1" />
+                                                {course.duration || '6 weeks'}
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-500">
+                                                <UserGroupIcon className="h-4 w-4 mr-1" />
+                                                {course.students_enrolled || '1,200+'} students
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-lg font-bold text-gray-900">
+                                                {course.price ? `$${course.price}` : 'Free'}
+                                                {course.plans && course.plans.length > 1 && (
+                                                    <span className="text-sm font-normal text-gray-500 ml-1">starting at</span>
+                                                )}
+                                            </span>
+                                            <Link
+                                                href={`/exams/${course.slug}`}
+                                                className="flex items-center text-blue-600 hover:text-blue-800 font-medium group"
+                                            >
+                                                Explore <ArrowRightIcon className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Comparison Table */}
+                        {courses.length > 1 && (
+                            <div className="mt-12">
+                                <h2 className="text-2xl font-bold mb-6 text-center">Course Comparison</h2>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {courses.map((course) => (
+                                                <tr key={course.id} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <Link href={`/exams/${course.slug}`} className="text-blue-600 hover:text-blue-800 font-medium">
+                                                            {course.title}
+                                                        </Link>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">{course.duration || '6 weeks'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`px-2 py-1 text-xs rounded-full ${
+                                                            course.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
+                                                            course.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-red-100 text-red-800'
+                                                        }`}>
+                                                            {course.difficulty || 'Intermediate'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="flex items-center">
+                                                            <StarIcon className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                                                            <span>{course.avgRating || '4.8'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap font-bold">
+                                                        {course.price ? `$${course.price}` : 'Free'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        )}
+                    </>
+                )}
             </div>
 
             {/* Success Stories */}
@@ -253,55 +339,6 @@ export default function CourseCategoryPage() {
                     </div>
                 </div>
             </div>
-
-            {/* Comparison Table */}
-            {filteredCourses.length > 1 && (
-                <div className="mb-12">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Course Comparison</h2>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white rounded-lg overflow-hidden">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {filteredCourses.map((course) => (
-                                    <tr key={course.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <Link href={`/exams/${course.slug}`} className="text-blue-600 hover:text-blue-800 font-medium">
-                                                {course.title}
-                                            </Link>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">{course.duration}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${course.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
-                                                course.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                {course.difficulty}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <StarIcon className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                                                <span>{course.rating}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap font-bold">
-                                            {course.price ? `$${course.price}` : 'Free'}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
 
             {/* CTA Section */}
             <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-xl p-8 text-white text-center relative overflow-hidden">

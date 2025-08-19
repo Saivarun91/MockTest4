@@ -2,6 +2,7 @@
 'use client';
 import { useState } from 'react';
 import { UserCircleIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 export default function ProfileTab() {
     const [mentor, setMentor] = useState({
@@ -38,7 +39,7 @@ export default function ProfileTab() {
                     <div className="relative group">
                         <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden">
                             {mentor.profilePicture ? (
-                                <img src={mentor.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                                <Image src={mentor.profilePicture} alt="Profile" className="w-full h-full object-cover" width={128} height={128} />
                             ) : (
                                 <UserCircleIcon className="h-20 w-20 text-gray-400" />
                             )}

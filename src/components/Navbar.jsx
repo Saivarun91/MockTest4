@@ -4,18 +4,25 @@ import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { allExams } from '@/data/exams';
 import { ChevronDownIcon, UserCircleIcon, AcademicCapIcon, BookOpenIcon, ChatBubbleBottomCenterTextIcon, CogIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 export default function Navbar() {
-    const { user, logout } = useUser();
+    const { user, logout, courses } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [isCoursesOpen, setIsCoursesOpen] = useState(false);
     const pathname = usePathname();
     const dropdownRef = useRef(null);
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+    const router = useRouter();
 
     const userDropdownRef = useRef(null);
+    const handleLogout = () => {
+        logout();
+        toast.success("Logged out successfully")
+        router.push('/auth/login')
+    }
+
 
     const navLinks = [
         { name: 'Home', href: '/', icon: <UserCircleIcon className="h-5 w-5 mr-2" /> },
@@ -23,7 +30,8 @@ export default function Navbar() {
         { name: 'Testimonials', href: '/testimonials', icon: <ChatBubbleBottomCenterTextIcon className="h-5 w-5 mr-2" /> },
     ];
 
-    const categories = [...new Set(allExams.map(exam => exam.category))];
+    // Get unique categories from dynamic courses
+    const categories = [...new Set(courses.map(course => course.category))];
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -98,6 +106,9 @@ export default function Navbar() {
                                                     onClick={() => setIsCoursesOpen(false)}
                                                 >
                                                     <span className="truncate">{category}</span>
+                                                    <span className="ml-auto text-xs text-gray-500">
+                                                        {courses.filter(course => course.category === category).length} courses
+                                                    </span>
                                                 </Link>
                                             </li>
                                         ))}
@@ -128,18 +139,15 @@ export default function Navbar() {
                                             <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                         </div>
                                         <Link
-                                            href="/settings"
+                                            href="/profile"
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                             onClick={() => setIsUserDropdownOpen(false)}
                                         >
-                                            <CogIcon className="h-4 w-4 mr-2" />
-                                            Settings
+                                            <UserCircleIcon className="h-4 w-4 mr-2" />
+                                            Profile
                                         </Link>
                                         <button
-                                            onClick={() => {
-                                                logout();
-                                                setIsUserDropdownOpen(false);
-                                            }}
+                                            onClick={handleLogout}
                                             className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                                         >
                                             <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
@@ -233,11 +241,11 @@ export default function Navbar() {
                             {user ? (
                                 <>
                                     <Link
-                                        href="/settings"
+                                        href="/profile"
                                         className="block px-4 py-3 text-center text-gray-600 hover:bg-gray-50 rounded-md font-medium"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Settings
+                                        Profile
                                     </Link>
                                     <button
                                         onClick={() => {

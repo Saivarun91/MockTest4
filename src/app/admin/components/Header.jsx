@@ -1,6 +1,7 @@
 'use client';
 import { FiBell, FiSearch, FiMenu } from 'react-icons/fi';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -37,9 +38,11 @@ export default function Header() {
 
                     <div className="relative">
                         <button className="flex items-center focus:outline-none">
-                            <img
+                            <Image
                                 className="h-8 w-8 rounded-full"
                                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                width={32}
+                                height={32}
                                 alt="Admin user"
                             />
                             <span className="ml-2 text-sm font-medium text-gray-700 hidden md:inline">Admin</span>

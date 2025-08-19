@@ -9,25 +9,13 @@ export default function Sidebar() {
 
     const navigation = [
         {
-            name: 'Dashboard',
-            href: '/admin/dashboard',
-            icon: '📊',
-            current: pathname === '/admin/dashboard'
-        },
-        {
             name: 'Courses',
             href: '/admin/courses',
             icon: '📚',
             current: pathname === '/admin/courses'
         },
         {
-            name: 'Questions',
-            href: '/admin/exams',
-            icon: '❓',
-            current: pathname === '/admin/exams'
-        },
-        {
-            name: 'Students',
+            name: 'Enrollments',
             href: '/admin/students',
             icon: '👥',
             current: pathname === '/admin/students'
@@ -42,36 +30,40 @@ export default function Sidebar() {
 
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
-        router.push('/auth/login');
+        router.push('/admin');
     };
 
     return (
-        <div className={`bg-gray-800 text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
+        <div className={`bg-gradient-to-b from-gray-800 to-gray-900 text-white transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'} h-screen flex flex-col shadow-xl`}>
             <div className="flex items-center justify-between p-4 border-b border-gray-700">
                 {!isCollapsed && (
-                    <h1 className="text-xl font-bold">Admin Panel</h1>
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Admin Panel</h1>
                 )}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="p-2 rounded hover:bg-gray-700"
+                    className="p-2 rounded-full hover:bg-gray-700 transition-colors duration-200"
+                    aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 >
-                    {isCollapsed ? '→' : '←'}
+                    {isCollapsed ? (
+                        <span className="text-xl">→</span>
+                    ) : (
+                        <span className="text-xl">←</span>
+                    )}
                 </button>
             </div>
 
-            <nav className="mt-8">
-                <ul className="space-y-2">
+            <nav className="mt-8 flex-1">
+                <ul className="space-y-2 px-2">
                     {navigation.map((item) => (
                         <li key={item.name}>
                             <button
                                 onClick={() => router.push(item.href)}
-                                className={`w-full flex items-center px-4 py-3 text-left transition-colors ${
-                                    item.current
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                }`}
+                                className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0 py-4' : 'px-4 py-3'} rounded-lg transition-all duration-200 ${item.current
+                                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md'
+                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                    }`}
                             >
-                                <span className="text-xl mr-3">{item.icon}</span>
+                                <span className={`text-xl ${!isCollapsed ? 'mr-3' : ''}`}>{item.icon}</span>
                                 {!isCollapsed && (
                                     <span className="font-medium">{item.name}</span>
                                 )}
@@ -81,12 +73,12 @@ export default function Sidebar() {
                 </ul>
             </nav>
 
-            <div className="absolute bottom-4 left-4 right-4">
+            <div className="p-4 border-t border-gray-700">
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center px-4 py-3 text-left text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                    className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0 py-4' : 'px-4 py-3'} rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200`}
                 >
-                    <span className="text-xl mr-3">🚪</span>
+                    <span className={`text-xl ${!isCollapsed ? 'mr-3' : ''}`}>🚪</span>
                     {!isCollapsed && (
                         <span className="font-medium">Logout</span>
                     )}

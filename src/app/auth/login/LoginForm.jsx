@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -24,15 +25,16 @@ const LoginForm = () => {
         setIsLoading(true);
 
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/`, {
                 email,
                 password,
-                role: activeTab // 'user' or 'mentor'
+                role: 'student' // 'user' or 'mentor'
             });
             console.log(res.data);
             // Assuming your backend returns token and role in the response
             const { token, role,user } = res.data;
             login(user,token,role);
+            toast.success("Logged in successfully")
 
             // Store token and role (you might want to use your context here)
             // localStorage.setItem('token', token);
@@ -70,20 +72,7 @@ const LoginForm = () => {
             )}
 
             {/* Role Selection Tabs */}
-            <div className="flex border-b border-gray-200">
-                <button
-                    className={`py-2 px-4 font-medium text-sm focus:outline-none ${activeTab === 'user' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-                    onClick={() => setActiveTab('student')}
-                >
-                    Student Login
-                </button>
-                <button
-                    className={`py-2 px-4 font-medium text-sm focus:outline-none ${activeTab === 'mentor' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-                    onClick={() => setActiveTab('mentor')}
-                >
-                    Mentor Login
-                </button>
-            </div>
+            
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <motion.div

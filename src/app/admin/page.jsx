@@ -17,7 +17,7 @@ export default function AdminLogin() {
         setError('');
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/`, {
                 email,
                 password,
                 role: 'admin',
@@ -29,7 +29,7 @@ export default function AdminLogin() {
             localStorage.setItem('adminToken', token);
 
             // Redirect to dashboard
-            router.push('/admin/dashboard');
+            router.push('/admin/courses');
         } catch (err) {
             if (err.response && err.response.data && err.response.data.error) {
                 setError(err.response.data.error);

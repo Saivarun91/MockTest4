@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -8,19 +8,29 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function AdminLayout({ children }) {
     const router = useRouter();
+    const pathname = usePathname();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check authentication status (replace with your actual auth check)
         const token = localStorage.getItem('adminToken');
-        if (!token && !window.location.pathname.includes('/admin/login')) {
-            router.push('/admin');
+
+        if (!token) {
+            setIsAuthenticated(false);
+            // If not logged in and not already on login page, go to login
+            if (pathname !== '/admin') {
+                router.push('/admin');
+            }
         } else {
             setIsAuthenticated(true);
+            // Optional: redirect to courses if visiting plain /admin
+            if (pathname === '/admin') {
+                router.push('/admin/courses');
+            }
         }
+
         setLoading(false);
-    }, [router]);
+    }, [pathname, router]);
 
     if (loading) {
         return (
@@ -30,10 +40,12 @@ export default function AdminLayout({ children }) {
         );
     }
 
+    // If not logged in, show only the login page content
     if (!isAuthenticated) {
-        return <>{children}</>;
+        return children;
     }
 
+    // Logged in: show admin layout with sidebar and header
     return (
         <div className="flex h-screen bg-gray-50">
             <Sidebar />

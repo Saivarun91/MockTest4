@@ -6,6 +6,7 @@ import SocialAuthButtons from '../components/SocialAuthButtons';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const SignupForm = () => {
     const [name, setName] = useState('');
@@ -16,7 +17,7 @@ const SignupForm = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [role, setRole] = useState('user'); // default to user
+    const [role, setRole] = useState('student'); // default to user
 
     const router = useRouter()
     const handleSubmit = async (e) => {
@@ -35,18 +36,19 @@ const SignupForm = () => {
             setIsLoading(false);
             return;
         }
-
+console.log(role);
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/auth/register/', {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register/`, {
                 name,
                 email,
                 password,
-                role, // 👈 include selected role
+                role : 'student', // 👈 include selected role
             });
+
 
             if (role === 'mentor') {
                 // Auto-login if mentor
-                const loginRes = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
+                const loginRes = await axios.post('process.env.NEXT_PUBLIC_API_URL/api/auth/login/', {
                     email,
                     password,
                 });
@@ -58,7 +60,7 @@ const SignupForm = () => {
                 router.push('/mentor/dashboard');
             } else {
                 // Just notify success (no auto-login for user)
-                alert('Account created! Please login to continue.');
+                toast.success('Account created! Please login to continue.');
                 router.push('/auth/login');
             }
         } catch (err) {
@@ -216,7 +218,7 @@ const SignupForm = () => {
                         </button>
                     </div>
                 </motion.div>
-                <motion.div>
+                {/* <motion.div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                         Registering as
                     </label>
@@ -228,7 +230,7 @@ const SignupForm = () => {
                         <option value="user">Student</option>
                         <option value="mentor">Mentor</option>
                     </select>
-                </motion.div>
+                </motion.div> */}
 
                 <motion.div
                     initial={{ opacity: 0 }}
