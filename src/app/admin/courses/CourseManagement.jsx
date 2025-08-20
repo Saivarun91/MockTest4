@@ -178,7 +178,7 @@ export default function CourseManagement() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('adminToken');
-            const response = await fetch(`process.env.NEXT_PUBLIC_API_URL/api/courses/update/${courseForm.slug}/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/update/${courseForm.slug}/`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
