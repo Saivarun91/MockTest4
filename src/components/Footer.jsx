@@ -70,7 +70,7 @@ export default function Footer() {
                     <div className="lg:col-span-2">
                         <Link href="/" className="flex items-center space-x-2 mb-4 group">
                             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:bg-blue-700 transition-colors">
-                                EQ
+                                PT
                             </div>
                             <span className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
                                 PrepTara
