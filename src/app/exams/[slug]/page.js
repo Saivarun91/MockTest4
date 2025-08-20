@@ -448,7 +448,7 @@ const ExamPage = () => {
                             </div>
                         </div>
                         <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2">What you'll learn in this course</h3>
+                            <h3 className="text-xl font-bold mb-2">What you will learn in this course</h3>
                             <p className="text-gray-600">Get a sneak peek at the course content and teaching style before you enroll.</p>
                         </div>
                     </div>
@@ -538,7 +538,7 @@ const ExamPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-blue-100">"Passed the exam on first try thanks to this course. Landed a promotion within 3 months!"</p>
+                                        <p className="text-sm text-blue-100">&quot;Passed the exam on first try thanks to this course. Landed a promotion within 3 months!&quot;</p>
                                         <div className="mt-3 pt-3 border-t border-white/20">
                                             <div className="text-xs text-white/80">Certified on {new Date().toLocaleDateString()}</div>
                                         </div>
@@ -596,7 +596,7 @@ const ExamPage = () => {
                                                 </ul>
                                             </div>
 
-                                            <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">What You'll Learn</h3>
+                                            <h3 className="text-lg font-medium text-gray-900 mt-6 mb-3">What You will Learn</h3>
                                             <ul className="space-y-3">
                                                 {(exam.features || ['Comprehensive exam preparation', 'Real-world scenarios', 'Hands-on practice', 'Exam strategies']).map((feature, index) => (
                                                     <li key={index} className="flex items-start">
@@ -889,7 +889,7 @@ const ExamPage = () => {
                                         <div>
                                             <h4 className="font-medium text-green-800 mb-1">30-Day Money-Back Guarantee</h4>
                                             <p className="text-sm text-green-700">
-                                                If you're not satisfied, we'll refund your payment. No questions asked.
+                                                If you are not satisfied, we will refund your payment. No questions asked.
                                             </p>
                                         </div>
                                     </div>
