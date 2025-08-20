@@ -59,8 +59,8 @@ export default function Navbar() {
                         <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl transition-transform group-hover:scale-105">
                             <AcademicCapIcon className="h-6 w-6" />
                         </div>
-                        <span className="text-xl font-bold text-gray-900 hidden sm:inline-block">
-                            Exam<span className="text-blue-600">Questions</span>
+                        <span className="text-xl font-bold text-gray-900 hidden sm:inline-block font-playfair">
+                          Prep<span className="text-blue-600">Tara</span>
                         </span>
                     </Link>
 
