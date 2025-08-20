@@ -207,7 +207,7 @@ export default function Testimonials() {
                                     ))}
                                 </div>
                                 <blockquote className="text-2xl font-medium text-gray-800 mb-8">
-                                    "I went from an entry-level IT position to a Cloud Architect role at a Fortune 500 company within a year, thanks to ExamQuestions' comprehensive certification training."
+                                    &quot;I went from an entry-level IT position to a Cloud Architect role at a Fortune 500 company within a year, thanks to ExamQuestions comprehensive certification training.!&quot;
                                 </blockquote>
                                 <div className="flex items-center">
                                     <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden mr-6">
@@ -233,7 +233,7 @@ export default function Testimonials() {
                                         href="/alex-story"
                                         className="text-blue-600 font-semibold flex items-center hover:text-blue-800"
                                     >
-                                        Read Alex's full success story
+                                        Read Alex'&aposs full success story
                                         <ArrowRightIcon className="h-4 w-4 ml-2" />
                                     </Link>
                                 </div>
