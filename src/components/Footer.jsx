@@ -49,7 +49,7 @@ export default function Footer() {
     ];
 
     const contactInfo = [
-        { text: 'hello@examquestions.com', icon: <Mail className="w-4 h-4" /> },
+        { text: 'hello@PrepTara.com', icon: <Mail className="w-4 h-4" /> },
         { text: '+1 (555) 123-4567', icon: <Phone className="w-4 h-4" /> },
         { text: '123 Certification St, San Francisco, CA', icon: <MapPin className="w-4 h-4" /> },
     ];
@@ -73,7 +73,7 @@ export default function Footer() {
                                 EQ
                             </div>
                             <span className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                                ExamQuestions
+                                PrepTara
                             </span>
                         </Link>
                         <p className="mb-4 max-w-md">
@@ -204,7 +204,7 @@ export default function Footer() {
 
                 <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
                     <p className="text-gray-500 mb-4 md:mb-0">
-                        &copy; {new Date().getFullYear()} ExamQuestions. All rights reserved.
+                        &copy; {new Date().getFullYear()} PrepTara. All rights reserved.
                     </p>
                     <div className="flex space-x-6">
                         <Link href="/privacy" className="text-gray-500 hover:text-white transition-colors">
