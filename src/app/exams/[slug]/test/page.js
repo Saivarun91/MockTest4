@@ -365,7 +365,7 @@ export default function AutomatedExamPage() {
               </svg>
             </div>
             <div>
-              <h3 className="font-bold text-yellow-800">You're Almost There!</h3>
+              <h3 className="font-bold text-yellow-800">You are Almost There!</h3>
               <p className="text-sm text-green-700 mt-1">
   {examResults?.percentage < 60 
     ? `You need ${60 - examResults?.percentage}% more to reach the passing mark.` 
@@ -654,7 +654,7 @@ export default function AutomatedExamPage() {
                     <h3 className="font-bold text-yellow-800">Achievement Unlocked!</h3>
                   </div>
                   <p className="text-yellow-700">
-                    You've completed this practice test with a passing score. Consider
+                    You have completed this practice test with a passing score. Consider
                     taking the final exam to certify your knowledge.
                   </p>
                 </div>
