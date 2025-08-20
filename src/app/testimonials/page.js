@@ -233,7 +233,7 @@ export default function Testimonials() {
                                         href="/alex-story"
                                         className="text-blue-600 font-semibold flex items-center hover:text-blue-800"
                                     >
-                                        Read Alex'&aposs full success story
+                                        Read Alex&aposs full success story
                                         <ArrowRightIcon className="h-4 w-4 ml-2" />
                                     </Link>
                                 </div>
